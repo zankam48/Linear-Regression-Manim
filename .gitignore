@@ -3,3 +3,5 @@
 /__pycache__
 playground.py
 what_is_func.py
+grad_descent.py
+grad_descent_matplotlib.py

@@ -81,3 +81,222 @@ class LinRegViz(Scene):
 
         self.play(FadeIn(x_label), FadeIn(y_label), run_time=2)
         self.wait(1)
+
+
+# transition from 2d to 3d using transform
+class Transition2D3D(ThreeDScene):
+    def construct(self):
+        self.plot_2d_graph()
+        self.transition_to_3d()
+        self.plot_3d_graph()
+        
+    def plot_2d_graph(self):
+        # data points 2D
+        data_points_2d = [
+            (1, 20), (2, 30), (3, 25), (4, 40), (5, 45),
+            (6, 55), (7, 50), (8, 60), (9, 70), (10, 75)
+        ]
+        x_data = [p[0] for p in data_points_2d]
+        y_data = [p[1] for p in data_points_2d]
+        
+        axes_2d = Axes(
+            x_range=[0, 10, 1],
+            y_range=[0, 100, 10],
+            x_length=7,
+            y_length=7,
+            axis_config={"include_numbers": True},
+        ).to_edge(LEFT)
+        x_label = axes_2d.get_x_axis_label("X")
+        y_label = axes_2d.get_y_axis_label("Y")
+        labels_2d = VGroup(x_label, y_label)
+        
+        # plot
+        dots_2d = VGroup(*[
+            Dot(axes_2d.coords_to_point(x, y), color=BLUE)
+            for x, y in zip(x_data, y_data)
+        ])
+        
+        # use plot for create line
+        m = 1.2
+        b = 1
+        # line_2d = axes_2d.plot(lambda x: m*x + b, x_range=[0, 10], color=RED)
+
+        start_point = axes_2d.coords_to_point(1, 15)
+        end_point = axes_2d.coords_to_point(10, 80)
+        line_2d = Line(
+            start=start_point,
+            end=end_point,
+            color=YELLOW,
+        )
+        
+        self.play(Create(axes_2d), Write(labels_2d))
+        self.play(FadeIn(dots_2d))
+        self.play(Create(line_2d))
+        self.wait(2)
+        
+        # attrib
+        self.axes_2d = axes_2d
+        self.dots_2d = dots_2d
+        self.line_2d = line_2d
+        self.labels_2d = labels_2d
+        
+    def transition_to_3d(self):
+        # transition the 2D axes to 3D axes
+        axes_3d = ThreeDAxes(
+            x_range=[0, 10, 1],
+            y_range=[0, 10, 1],
+            z_range=[0, 100, 10],
+            x_length=6,
+            y_length=4,
+            z_length=4,
+            axis_config={"include_numbers": True},
+        ).to_edge(LEFT)
+        x_label = axes_3d.get_x_axis_label("X")
+        y_label = axes_3d.get_y_axis_label("Y")
+        z_label = axes_3d.get_z_axis_label("Z")
+        labels_3d = VGroup(x_label, y_label, z_label)
+        
+        self.play(
+            FadeTransformPieces(self.axes_2d, axes_3d),
+            FadeTransformPieces(self.labels_2d, labels_3d),
+        )
+        self.wait(1)
+        
+        self.move_camera(phi=75 * DEGREES, theta=-45 * DEGREES, run_time=2)
+        
+        self.axes_3d = axes_3d
+        self.labels_3d = labels_3d
+        
+    def plot_3d_graph(self):
+        # data points
+        data_points_3d = [
+            (1, 1, 2), (2, 2, 3), (3, 3, 4), (4, 4, 5), (5, 5, 7),
+            (6, 6, 8), (7, 7, 9), (8, 8, 10), (9, 9, 12), (10, 10, 13)
+        ]
+        x_data = [p[0] for p in data_points_3d]
+        y_data = [p[1] for p in data_points_3d]
+        z_data = [p[2] for p in data_points_3d]
+        
+        # plot
+        dots_3d = VGroup(*[
+            Dot3D(self.axes_3d.coords_to_point(x, y, z), color=BLUE)
+            for x, y, z in zip(x_data, y_data, z_data)
+        ])
+        
+        # plane z = a*x + b*y + c
+        a = 0.6
+        b = 0.6
+        c = 0.4
+        
+        plane = Surface(
+            lambda u, v: self.axes_3d.coords_to_point(u, v, a*u + b*v + c),
+            u_range=[0, 10],
+            v_range=[0, 10],
+            checkerboard_colors=[RED_D, RED_E],
+            resolution=(10, 10),
+            fill_opacity=0.5
+        )
+        
+        self.play(FadeIn(dots_3d))
+        self.play(Create(plane))
+        self.wait(2)
+        
+        self.play(FadeOut(dots_3d), FadeOut(plane), FadeOut(self.axes_3d), FadeOut(self.labels_3d))
+        self.wait(1)
+
+
+# only using 3dScene
+class TransitionFrom2DTo3D(ThreeDScene):
+    def construct(self):
+        axes = ThreeDAxes(
+            x_range=[0, 10, 1],
+            y_range=[0, 100, 10],
+            z_range=[0, 8, 1],
+            x_length=6,
+            y_length=4,
+            z_length=4,
+            axis_config={"include_numbers": True},
+        )
+
+        axes.z_axis.set_opacity(0)
+
+        # labels
+        x_label = axes.get_x_axis_label("Hours of Study")
+        y_label = axes.get_y_axis_label("Results")
+        z_label = axes.get_z_axis_label("Method").set_opacity(0)  
+
+        self.add(axes, x_label, y_label, z_label)
+
+        self.set_camera_orientation(phi=0 * DEGREES, theta=-90 * DEGREES)
+
+        # 2D data points
+        data_points_2d = [
+            (1, 20), (2, 30), (3, 25), (4, 40), (5, 45),
+            (6, 55), (7, 50), (8, 60), (9, 70), (10, 75)
+        ]
+
+        # plot
+        dots_2d = VGroup()
+        for x, y in data_points_2d:
+            dot = Dot3D(axes.coords_to_point(x, y, 0), color=BLUE)
+            dots_2d.add(dot)
+        self.play(FadeIn(dots_2d))
+
+        x_vals = np.array([x for x, y in data_points_2d])
+        y_vals = np.array([y for x, y in data_points_2d])
+        m, b = np.polyfit(x_vals, y_vals, 1)
+
+        # line
+        line_2d = axes.plot(
+            lambda x: m * x + b,
+            x_range=[0, 11],
+            color=RED
+        )
+        self.play(Create(line_2d))
+        self.wait(2)
+
+        # 3D
+        self.move_camera(phi=45 * DEGREES)
+        self.play(
+            axes.z_axis.animate.set_opacity(1),
+            z_label.animate.set_opacity(1),
+            run_time=3
+        )
+        self.wait(1)
+
+        # 3D data points
+        data_points_3d = [
+            (1, 20, 1), (2, 30, 2), (3, 25, 1), (4, 40, 3), (5, 45, 2),
+            (6, 55, 1), (7, 50, 3), (8, 60, 2), (9, 70, 1), (10, 75, 3)
+        ]
+
+        self.play(
+            FadeOut(dots_2d),
+            FadeOut(line_2d),
+        )
+
+        # plot
+        dots_3d = VGroup()
+        for x, y, z in data_points_3d:
+            dot = Dot3D(axes.coords_to_point(x, y, z), color=BLUE)
+            dots_3d.add(dot)
+        self.play(FadeIn(dots_3d))
+        self.wait(1)
+
+        X = np.array([[x, y, 1] for x, y, z in data_points_3d])
+        Z = np.array([z for x, y, z in data_points_3d])
+        coeffs, residuals, rank, s = np.linalg.lstsq(X, Z, rcond=None)
+        a, b_coeff, c = coeffs
+
+        # plane
+        plane = Surface(
+            lambda u, v: axes.coords_to_point(u, v, a * u + b_coeff * v + c),
+            u_range=[0, 11],
+            v_range=[0, 8],
+            fill_opacity=0.5,
+            checkerboard_colors=[RED_A, RED_B],
+            resolution=(10, 10)
+        )
+        self.play(Create(plane))
+        self.wait(2)
+
