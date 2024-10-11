@@ -93,18 +93,18 @@ class Transition2D3D(ThreeDScene):
     def plot_2d_graph(self):
         # data points 2D
         data_points_2d = [
-            (1, 20), (2, 30), (3, 25), (4, 40), (5, 45),
-            (6, 55), (7, 50), (8, 60), (9, 70), (10, 75)
+            (1, 2), (2, 3), (3, 2.5), (4, 4), (5, 4.5),
+            (6, 5.5), (7, 5), (8, 6), (9, 7), (10, 7.5)
         ]
         x_data = [p[0] for p in data_points_2d]
         y_data = [p[1] for p in data_points_2d]
         
         axes_2d = Axes(
             x_range=[0, 10, 1],
-            y_range=[0, 100, 10],
+            y_range=[0, 10, 1],
             x_length=7,
             y_length=7,
-            axis_config={"include_numbers": True},
+            # axis_config={"include_numbers": True},
         ).to_edge(LEFT)
         x_label = axes_2d.get_x_axis_label("X")
         y_label = axes_2d.get_y_axis_label("Y")
@@ -119,15 +119,15 @@ class Transition2D3D(ThreeDScene):
         # use plot for create line
         m = 1.2
         b = 1
-        # line_2d = axes_2d.plot(lambda x: m*x + b, x_range=[0, 10], color=RED)
+        line_2d = axes_2d.plot(lambda x: m*x + b, x_range=[0, 10], color=RED)
 
-        start_point = axes_2d.coords_to_point(1, 15)
-        end_point = axes_2d.coords_to_point(10, 80)
-        line_2d = Line(
-            start=start_point,
-            end=end_point,
-            color=YELLOW,
-        )
+        # start_point = axes_2d.coords_to_point(1, 15)
+        # end_point = axes_2d.coords_to_point(10, 80)
+        # line_2d = Line(
+        #     start=start_point,
+        #     end=end_point,
+        #     color=YELLOW,
+        # )
         
         self.play(Create(axes_2d), Write(labels_2d))
         self.play(FadeIn(dots_2d))
@@ -145,11 +145,11 @@ class Transition2D3D(ThreeDScene):
         axes_3d = ThreeDAxes(
             x_range=[0, 10, 1],
             y_range=[0, 10, 1],
-            z_range=[0, 100, 10],
+            z_range=[0, 10, 1],
             x_length=6,
             y_length=4,
             z_length=4,
-            axis_config={"include_numbers": True},
+            # axis_config={"include_numbers": True},
         ).to_edge(LEFT)
         x_label = axes_3d.get_x_axis_label("X")
         y_label = axes_3d.get_y_axis_label("Y")
@@ -157,8 +157,8 @@ class Transition2D3D(ThreeDScene):
         labels_3d = VGroup(x_label, y_label, z_label)
         
         self.play(
-            FadeTransformPieces(self.axes_2d, axes_3d),
-            FadeTransformPieces(self.labels_2d, labels_3d),
+            ReplacementTransform(self.axes_2d, axes_3d),
+            ReplacementTransform(self.labels_2d, labels_3d),
         )
         self.wait(1)
         
